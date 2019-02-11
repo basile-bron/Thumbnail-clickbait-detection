@@ -5,7 +5,7 @@ import re
 import cv2
 import PIL.Image as im
 ################################################################################
-
+print("##############START IMPORT###############")
 def loadImg(dataset,filename):
 	img = []
 
@@ -32,6 +32,7 @@ def loadImg(dataset,filename):
 	except Exception as e:
 		print('Could not load the image: '+ str(e))
 	return img
+
 #Import dataset
 def loadDataset(dataset):
 	#listing the images of the directory
@@ -59,5 +60,6 @@ def loadDataset(dataset):
 #importing X
 X,Y = loadDataset('data/')
 
-print("END OF IMPORT")
-print("#############################")
+#import prediction test
+predict, trash = loadDataset('predict/')
+print("##############END OF IMPORT###############")

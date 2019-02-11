@@ -9,7 +9,13 @@ from keras.optimizers import RMSprop, Adam, SGD
 from keras.regularizers import l2
 
 from keras import backend as K
+K.tensorflow_backend._get_available_gpus()
+
 K.set_image_dim_ordering('th')
+
+from tensorflow.python.client import device_lib
+
+print(device_lib.list_local_devices())
 #shuffle
 def unison_shuffled_copies(a, b):
     assert len(a) == len(b)
@@ -24,9 +30,9 @@ X,Y =unison_shuffled_copies(X ,Y)
 print('assigning train data')
 
 print('x')
-X_train = X[301:]
+X_train = X[301:1301]
 print('y')
-Y_train = Y[301:]
+Y_train = Y[301:1301]
 
 print('x_test')
 X_test = X[:300]
@@ -93,8 +99,21 @@ model.add(Dense(1, activation='softmax'))
 #compile
 print('compile')
 model.compile(loss="binary_crossentropy", optimizer="adam", metrics=["acc"])
-model.fit(X_train, Y_train, validation_data=(X_test, Y_test), batch_size=4, nb_epoch=50, shuffle=True, verbose=2)
+model.fit(X_train, Y_train, validation_data=(X_test, Y_test), batch_size=4, nb_epoch=2, shuffle=True, verbose=2)
 
+
+try:
+    model.save_weights("model/detector.finetuned.h5")
+except Exception as e:
+    print(e)
+
+
+# calculate predictions
+predictions = model.predict(predict)
+print(predictions)
+for i in range(len(predict)):
+	print("Predicted= ", predictions[i])
+#debug
 
 #debug
 print('model layer##################')
