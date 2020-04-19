@@ -24,7 +24,12 @@ def unison_shuffled_copies(a, b):
 
 #custom
 print('import custom')
-from import_data import X ,Y
+from import_data import loadDataset
+
+#importing X
+X,Y = loadDataset('data/')
+
+
 X,Y =unison_shuffled_copies(X ,Y)
 #assigning train data
 print('assigning train data')

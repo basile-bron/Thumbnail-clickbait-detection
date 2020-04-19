@@ -39,7 +39,7 @@ def loadDataset(dataset):
 	imgs = os.listdir(dataset)
 	#print('number of images', len(imgs))
 	#initialise the var
-	X = np.zeros((len(imgs)-1,3,128,128))
+	X = np.zeros((len(imgs)-1,128,128,3))
 	#print('shape of X',X.shape)
 
 	Y = np.zeros((len(imgs)-1))
@@ -48,7 +48,7 @@ def loadDataset(dataset):
 		#print('current image name', imgs[i])
 		#assign the image to x
 		#print(X.shape)
-		X[i] = np.asarray(loadImg(dataset,imgs[i])).T
+		X[i] = np.asarray(loadImg(dataset,imgs[i]))
 		#if it is a cat (if the image as true in its name)
 		Y[i] = imgs[i][:3]
 		#print(imgs[i],Y[i])
@@ -58,8 +58,10 @@ def loadDataset(dataset):
 	return X,Y
 
 #importing X
-X,Y = loadDataset('data/')
+#X,Y = loadDataset('data/')
 
 #import prediction test
 predict, trash = loadDataset('predict/')
+
+
 print("##############END OF IMPORT###############")
