@@ -1,35 +1,82 @@
+"""
+this is a sketch that had the main purpose of expanding the dataset using
+semi supervised learning, but LogisticRegression is not fited for thmbnail images
+
+switching to convolutional neural net would defenetly solve the issue
+"""
+
+import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.cluster import KMeans
 import numpy as np
 
-#shuffle
+#shuffle function
 def unison_shuffled_copies(a, b):
     assert len(a) == len(b)
     p = np.random.permutation(len(a))
     return a[p], b[p]
 
+#importing manualy tagged dataset
 from import_data import loadDataset
-#importing X
-X,Y = loadDataset('data/')
+X,Y = loadDataset('data_manualy_tag/')
 
-
+#shuffle manualy tagged dataset
 X,Y =unison_shuffled_copies(X ,Y)
 
-#split training and test set
+#split training and test set of the manualy tagged dataset
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, Y)
-
 # reshape training set input into a 2D array
 nsamples, nx, ny, nz= X_train.shape
 X_train = X_train.reshape((nsamples,nx*(ny*nz)))
+
+# reshape training set input into a 2D array
+nsamples, nx, ny, nz= X_test.shape
+X_test = X_test.reshape((nsamples,nx*(ny*nz)))
+
+#you need to categorise before converting to one hot otherwise it will get the last value of the dataset as the number of classes
+"""Categorise data"""
+y_train = pd.cut(y_train, bins=[-1,24,49,74,99,np.inf], labels=[0,1,2,3,4])
+y_test = pd.cut(y_test, bins=[-1,25,50,75,100,np.inf], labels=[0,1,2,3,4])
+
+###################################################
+#Linear regression test
+###################################################
+X_train = np.c_[np.ones((100, 1)), X_train] #add x0 = 1 to each instances because we don't want to multiply by less than 1
+
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+lin_reg = LinearRegression()
+lin_reg.fit(X_train, y_train)
+lin_reg.intercept_, lin_reg.coef_
+y_predict = lin_reg.predict(X_test)
+lin_reg.score(X_test, y_test)
+
+
+theta_best_svd, residuals, rank , s = np.linalg.lstsq(X_train, y_train, rcond=None)
+print("theta best :", theta_best_svd)
+
+f = np.linalg.pinv(X_train).dot(y_train)
+print("y_predict best :", y_predict)
+
+#PLOT
+plt.plot(X_test, y_test, "r-")
+#plt.plot(X_test, f, "b-")
+plt.plot(X_train, y_train, "b.")
+#plt.axis([0, 2, 0, 15])
+plt.show()
+
+
+###################################################
+#Logistic regression test
+###################################################
+
 # CLUSTERING FOR SEMI SUPERVISED LEARNING
 n_labeled = 50
 log_reg = LogisticRegression(solver='lbfgs', multi_class='auto',max_iter=10000)
 log_reg.fit(X_train[:n_labeled], y_train[:n_labeled])
 
-# reshape training set input into a 2D array
-nsamples, nx, ny, nz= X_test.shape
-X_test = X_test.reshape((nsamples,nx*(ny*nz)))
+
 #performance of the model on the test set ?
 log_reg.score(X_test, y_test)
 
@@ -73,6 +120,9 @@ def show_images(images, cols = 1, titles = None):
     fig.set_size_inches(np.array(fig.get_size_inches()) * n_images)
     plt.show()
 """
+########## manualy tag data#######
+#unecessary for this Dataset
+
 X_representative_digits.shape
 img = X_representative_digits.reshape([50, 128,128,3])
 img.shape
@@ -80,13 +130,14 @@ show_images(img[10:20]/255, cols = 1, titles = None)
 plt.imshow(X_representative_digits[3]/255)
 y_representative_digits = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,])
 """
-X_representative_digits,y_representative_digits = loadDataset('data_manualy_tag/')
 
+############################################################################################
+X_representative_digits,y_representative_digits = loadDataset('data_manualy_tag/')
 # reshape training set input into a 2D array
 nsamples, nx, ny, nz= X_representative_digits.shape
 X_representative_digits = X_representative_digits.reshape((nsamples,nx*(ny*nz)))
 X_representative_digits.shape
-############################################################################################
+
 
 log_reg = LogisticRegression(solver='lbfgs', multi_class='auto',max_iter=1000)
 log_reg.fit(X_representative_digits, y_representative_digits)
@@ -128,6 +179,7 @@ log_reg = LogisticRegression(solver='lbfgs', multi_class='auto',max_iter=10000)
 log_reg.fit(X_train_partially_propagated, y_train_partially_propagated)
 log_reg.score(X_test, y_test)
 
+#################################################################################################
 #display graph
 #plots
 print(y_test.shape)
